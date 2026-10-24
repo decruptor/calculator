@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Decruptor calculator — unit checks</title>
+<style>
+  body { background: #0e1116; color: #d7dde6; font: 13px/1.5 ui-monospace, Menlo, monospace; padding: 24px; }
+  h1 { font-size: 16px; }
+  .ok { color: #3fb950; } .fail { color: #f85149; }
+  #out { white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Decruptor calculator — unit checks</h1>
+<p>Same checks as <code>node tests.js</code>. Open this file directly, no server needed.</p>
+<div id="out"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+  // tests.js logs to the console; mirror it into the page with color.
+  (function () {
+    const out = document.getElementById('out');
+    const orig = console.log;
+    console.log = function () {
+      orig.apply(console, arguments);
+      const line = Array.from(arguments).join(' ');
+      const span = document.createElement('span');
+      span.className = /^FAIL\b/.test(line) ? 'fail' : (/  ok  /.test(line) ? 'ok' : '');
+      span.textContent = line + '\n';
+      out.appendChild(span);
+    };
+  })();
+</script>
+<script src="tests.js"></script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decruptor — which Bitcoin puzzle can you afford?</title>
+<meta name="description" content="Cost, GPU-hours and EV for all 256 Bitcoin puzzles. Static, offline, no trackers.">
+<style>
+  :root {
+    --bg: #0e1116; --panel: #161b22; --panel2: #1c232d; --line: #2a313d;
+    --fg: #d7dde6; --dim: #8b96a5; --accent: #f7931a; --good: #3fb950;
+    --bad: #f85149; --warn: #d29922; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+  code { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+  header { padding: 20px 24px 8px; max-width: 1280px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .3px; }
+  h1 .brand { color: var(--accent); }
+  .sub { color: var(--dim); max-width: 900px; margin: 0 0 14px; }
+  main { max-width: 1280px; margin: 0 auto; padding: 0 24px 48px; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 14px; align-items: end; }
+  .field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin-bottom: 3px; }
+  .field input[type=number], .field select {
+    width: 100%; background: var(--panel2); color: var(--fg); border: 1px solid var(--line);
+    border-radius: 6px; padding: 6px 8px; font-family: var(--mono); font-size: 13px;
+  }
+  .field .hint { font-size: 11px; color: var(--dim); margin-top: 2px; }
+  .check { display: flex; gap: 7px; align-items: center; font-size: 13px; padding-bottom: 4px; }
+  button {
+    background: var(--panel2); color: var(--fg); border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 14px; cursor: pointer; font-size: 13px;
+  }
+  button:hover { border-color: var(--accent); }
+  #summary { padding: 10px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; }
+  #metaLine { color: var(--dim); font-size: 12px; margin: 2px 0 14px; }
+
+  .explain { border-left: 3px solid var(--warn); background: var(--panel); border-radius: 0 10px 10px 0;
+    padding: 12px 16px; margin: 14px 0; font-size: 13px; }
+  .explain.geo { border-left-color: var(--accent); }
+  .explain h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--warn); }
+  .explain.geo h3 { color: var(--accent); }
+  .explain .f { font-family: var(--mono); background: var(--panel2); padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+  .explain p { margin: 6px 0; }
+
+  .twrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  thead th { position: sticky; top: 0; background: var(--panel2); color: var(--dim); text-align: right;
+    padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+  thead th.center, td.center { text-align: center; }
+  tbody td { padding: 5px 10px; border-bottom: 1px solid #20262f; text-align: right; font-family: var(--mono); white-space: nowrap; }
+  tbody tr:hover { background: #1d242e; }
+  td.n { color: var(--accent); font-weight: 600; }
+  td.addr { text-align: center; }
+  tr.r-solved td, tr.r-swept td { color: #5c6672; }
+  tr.r-solved td.n, tr.r-swept td.n { color: #5c6672; font-weight: 400; }
+  tr.hot { background: rgba(247, 147, 26, .05); }
+  .muted { color: #5c6672; }
+  .tiled { color: var(--good); } .undertiled { color: var(--warn); }
+  .pk.yes { color: var(--good); } .pk.no { color: var(--bad); }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-family: inherit; border: 1px solid; }
+  .badge.good { color: var(--good); border-color: var(--good); }
+  .badge.bad { color: var(--bad); border-color: var(--bad); }
+  .badge.unreach { color: var(--dim); border-color: var(--line); }
+  .badge.solved { color: var(--dim); border-color: var(--line); }
+  .badge.swept { color: var(--warn); border-color: var(--warn); }
+  details.adv { margin-top: 10px; }
+  details.adv summary { cursor: pointer; color: var(--dim); font-size: 12px; }
+  footer { color: var(--dim); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 40px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="brand">Decruptor</span> — which puzzle can you afford?</h1>
+  <p class="sub">
+    All 256 Bitcoin-puzzle races, priced in your hardware, your dollars and your expected
+    value. Expected kangaroo work is <code>K·2^(n/2)</code> with the SOTA constant
+    <code>K&nbsp;=&nbsp;1.15</code> (or RC's DP-overhead formula, advanced), at
+    <code>1.45e10</code> group ops/s per 4090-class GPU. Everything runs offline from this
+    folder; every row links to the chain for verification. Assumptions are yours to edit —
+    nothing here is hidden.
+  </p>
+</header>
+<main id="app">
+  <div id="summary"></div>
+  <div id="metaLine"></div>
+
+  <div class="panel">
+    <div class="controls">
+      <div class="field">
+        <label for="fleetPreset">Fleet preset</label>
+        <select id="fleetPreset">
+          <option value="1">1× GPU (you, one 4090)</option>
+          <option value="8">8× GPU (a good rig)</option>
+          <option value="32">32× GPU (a mining-basement rig)</option>
+          <option value="128">128× GPU (small fund)</option>
+          <option value="512">512× GPU (serious fund)</option>
+          <option value="4096">4096× GPU (nation-state-adjacent)</option>
+          <option value="custom">custom…</option>
+        </select>
+      </div>
+      <div class="field"><label for="gpus">GPUs</label><input type="number" id="gpus" min="1" step="1"><span class="hint"> Overrides preset</span></div>
+      <div class="field"><label for="btcPrice">BTC price (USD)</label><input type="number" id="btcPrice" min="0" step="100"></div>
+      <div class="field"><label for="usdPerGpuHour">$ / GPU-hour</label><input type="number" id="usdPerGpuHour" min="0" step="0.01"></div>
+      <div class="field"><label for="ratePerGpu">ops/s per GPU</label><input type="number" id="ratePerGpu" min="1" step="1e9"><span class="hint"> 1.45e10 ≈ 4090-class</span></div>
+      <div class="field"><label for="filter">Show</label>
+        <select id="filter">
+          <option value="live">live prizes (solvable + unreachable)</option>
+          <option value="kangaroo">kangaroo-able (pubkey known)</option>
+          <option value="unreachable">unreachable (no pubkey)</option>
+          <option value="dead">claimed / swept</option>
+          <option value="all">all 256</option>
+        </select>
+      </div>
+    </div>
+    <details class="adv">
+      <summary>Advanced — DP config &amp; herd geometry (K from RC's formula)</summary>
+      <div class="controls" style="margin-top:10px">
+        <div class="field"><label for="herdPerGpu">kangaroos per GPU (h/G)</label><input type="number" id="herdPerGpu" min="1" step="1"></div>
+        <div class="field"><label for="dpBits">DP bits (d)</label><input type="number" id="dpBits" min="1" max="40" step="1"></div>
+        <div class="field"><label for="jumpBits">log2 jump table (M = 2^m)</label><input type="number" id="jumpBits" min="4" max="24" step="1"></div>
+        <div class="field"><label for="rateHash160">hash160/s per GPU</label><input type="number" id="rateHash160" min="1" step="1e6"></div>
+        <div class="check"><input type="checkbox" id="useFormula"><label for="useFormula" style="text-transform:none;letter-spacing:0">K from RC DP-overhead formula</label></div>
+        <div class="field"><button id="resetBtn" type="button">Reset to defaults</button></div>
+      </div>
+      <p class="hint" style="color:var(--dim);font-size:12px;margin:10px 0 0">
+        With the formula box checked, K is computed per puzzle from
+        <code>K = 1.15 + (0.07 + 0.76/√DPK)/(1 + 0.30·DPK)</code>,
+        <code>DPK = 1.15·√W/(h·2^d)</code> (paper §5.3; accurate to ≤2.5% within its domain,
+        DPK ∈ [0.01, 80] — rows outside the domain are still shown, take them as K ≈ 1.15).
+        h is your whole fleet's kangaroo count: GPUs × kangaroos/GPU.
+      </p>
+    </details>
+  </div>
+
+  <div class="explain" id="explain-unreachable">
+    <h3>Why some rows are marked unreachable</h3>
+    <p>
+      The kangaroo method needs the target's <b>public key</b> — it walks between two known
+      EC points. Puzzles whose pubkey was never revealed (the odd-numbered gaps, #71–#159)
+      give you only a hash160. There is no pair of points to walk between, so the interval
+      ECDLP attack is <i>structurally impossible</i>, not merely expensive — and there is no
+      meet-in-the-middle shortcut either, because hash160 has no group structure. The only
+      known attack is plain enumeration: <span class="f">2^(n-1)</span> expected hash160
+      evaluations. At 5e6 hash160/s per GPU that is ~7.5 million GPU-years for #71 — the
+      smallest of them — and it grows by 2× with every puzzle number. That is why the
+      census marks them "unreachable with known methods", and why a revealed pubkey (a
+      single spend from the address) instantly turns one of these rows into a
+      kangaroo-able prize. Watch for it: every so often a puzzle is "de-anonymized" by a
+      spend, and the row jumps across the table.
+    </p>
+  </div>
+
+  <div class="explain geo">
+    <h3>Why fleet size changes your constant: the spacing/band geometry</h3>
+    <p>
+      The SOTA walk doesn't diffuse — it saturates in a band of width
+      <span class="f">B ≈ 400·√W·(M/2^14)^0.4</span> around its start (paper §3.2). A herd
+      of <span class="f">h</span> kangaroos therefore tiles the interval with
+      wild-start spacing <span class="f">1.0625·W/(2h/3)</span>, and the governing geometric
+      quantity is the ratio spacing/band (paper §5.5):
+    </p>
+    <p>
+      <span class="f">h ≳ 3·1.0625·W/(2·B)</span>&nbsp; keeps <span class="f">spacing/band ≲ 1</span>.
+      Under-tiling costs you <b>+7–14%</b> K (measured); over-tiling wastes hardware
+      (−9…−22%, the DP formula over-penalizes). The <b>s/b</b> column in the table is this
+      ratio for your current fleet size, computed per puzzle; hover it for the numbers, and
+      remember the DP bits then follow from the DPK target of RC's formula (§7.3).
+    </p>
+  </div>
+
+  <div class="twrap">
+    <table>
+      <thead><tr>
+        <th class="center">#</th><th>prize BTC</th><th>prize USD</th><th class="center">pubkey</th>
+        <th>expected ops</th><th>GPU-h total</th><th>cost USD</th><th>exp. time</th>
+        <th>solo EV</th><th>s/b</th><th class="center">verdict</th><th class="center">chain</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="explain" style="margin-top:14px">
+    <h3>How to read the EV column</h3>
+    <p>
+      A kangaroo run's work-to-solution is exponentially distributed with mean
+      <span class="f">K·√W</span>. Committing exactly the mean budget succeeds with
+      probability <span class="f">1 − 1/e ≈ 63.2%</span>, so
+      solo EV = 0.632·prize − expected cost. Cost counts every
+      GPU-hour your fleet burns: fleet size divides the wall time, never the total
+      GPU-hours, so bigger fleets get there faster, not cheaper. A negative EV at your
+      settings is not an insult — it is the honest answer to "can I afford this?", and the
+      reason people pool. Pooling divides cost and prize by the same share, so EV per dollar
+      is unchanged; what pooling buys is variance, not edge.
+    </p>
+  </div>
+</main>
+<footer>
+  Data: Bitcoin puzzle census snapshot <span id="censusDate"></span>, fetched from
+  mempool.space and cross-checked on blockstream.info (funding tx
+  <code>08389f34…6cd15</code>, block 339085). Every row's <b>verify ↗</b> opens the live
+  address on mempool.space — don't trust the snapshot, check the UTXO before you spend a
+  single GPU-hour. Expected-value model, constants and their validity domains: the
+  Decruptor paper on Pollard-kangaroo walk constants. GPL-3.0 — no trackers, no network
+  calls, works from <code>file://</code>.
+</footer>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+  document.getElementById('censusDate').textContent = CENSUS.asOfUtc + ' (tip ' + CENSUS.tipHeight + ')';
+</script>
+</body>
+</html>

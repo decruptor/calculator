@@ -4,77 +4,108 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Decruptor — which Bitcoin puzzle can you afford?</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36.508 30.423'%3E%3Cpath fill='%236131FF' fill-rule='evenodd' d='M%206.086%200.5%20C%206.086%200.224%206.31%200%206.586%200%20L%2011.671%200%20C%2011.947%200%2012.171%200.224%2012.171%200.5%20L%2012.171%206.084%20L%2012.171%206.085%20L%2012.171%2011.669%20C%2012.171%2011.945%2011.947%2012.169%2011.671%2012.169%20L%206.586%2012.169%20C%206.31%2012.169%206.086%2011.945%206.086%2011.669%20L%206.086%206.085%20L%206.086%206.084%20L%206.086%200.5%20Z%20M%206.086%2012.67%20C%206.086%2012.394%206.31%2012.17%206.586%2012.17%20L%2012.168%2012.17%20L%2012.171%2012.17%20L%2017.753%2012.17%20C%2018.029%2012.17%2018.253%2012.394%2018.253%2012.67%20L%2018.253%2018.254%20L%2018.253%2018.255%20L%2018.253%2023.838%20C%2018.253%2024.114%2018.476%2024.338%2018.753%2024.338%20L%2023.84%2024.338%20C%2024.116%2024.338%2024.34%2024.114%2024.34%2023.838%20L%2024.34%2018.255%20L%2024.34%2018.254%20L%2024.34%2012.67%20C%2024.34%2012.394%2024.564%2012.17%2024.84%2012.17%20L%2030.422%2012.17%20L%2030.424%2012.17%20L%2036.007%2012.17%20C%2036.283%2012.17%2036.507%2012.394%2036.507%2012.67%20L%2036.507%2017.755%20C%2036.507%2018.031%2036.283%2018.255%2036.007%2018.255%20L%2030.924%2018.255%20C%2030.648%2018.255%2030.424%2018.478%2030.424%2018.755%20L%2030.424%2023.838%20C%2030.424%2024.114%2030.648%2024.338%2030.924%2024.338%20L%2036.008%2024.338%20C%2036.284%2024.338%2036.508%2024.562%2036.508%2024.838%20L%2036.508%2029.923%20C%2036.508%2030.199%2036.284%2030.423%2036.008%2030.423%20L%200.5%2030.423%20C%200.224%2030.423%200%2030.199%200%2029.923%20L%200%2024.338%20L%200%2024.338%20L%200%2018.754%20C%200%2018.478%200.224%2018.254%200.5%2018.254%20L%205.585%2018.254%20C%205.861%2018.254%206.085%2018.478%206.085%2018.754%20L%206.085%2024.337%20C%206.085%2024.338%206.085%2024.338%206.085%2024.338%20L%206.085%2024.338%20C%206.086%2024.338%206.086%2024.338%206.086%2024.337%20L%206.086%2018.255%20L%206.086%2018.254%20L%206.086%2012.67%20Z%20M%2018.254%2012.67%20C%2018.254%2012.394%2018.478%2012.17%2018.754%2012.17%20L%2023.839%2012.17%20C%2024.115%2012.17%2024.339%2012.394%2024.339%2012.67%20L%2024.339%2017.755%20C%2024.339%2018.031%2024.115%2018.255%2023.839%2018.255%20L%2018.754%2018.255%20C%2018.478%2018.255%2018.254%2018.031%2018.254%2017.755%20L%2018.254%2012.67%20Z%20M%2024.339%206.584%20C%2024.339%206.308%2024.115%206.084%2023.839%206.084%20L%2018.754%206.084%20C%2018.478%206.084%2018.254%206.308%2018.254%206.584%20L%2018.254%2011.669%20C%2018.254%2011.945%2018.478%2012.169%2018.754%2012.169%20L%2023.839%2012.169%20C%2024.115%2012.169%2024.339%2011.945%2024.339%2011.669%20L%2024.339%206.584%20Z%20M%2024.34%206.085%20L%2024.34%2011.669%20C%2024.34%2011.945%2024.564%2012.169%2024.84%2012.169%20L%2029.924%2012.169%20C%2030.201%2012.169%2030.424%2011.945%2030.424%2011.669%20L%2030.424%206.085%20L%2030.424%206.084%20L%2030.424%200.5%20C%2030.424%200.224%2030.201%200%2029.924%200%20L%2024.84%200%20C%2024.564%200%2024.34%200.224%2024.34%200.5%20L%2024.34%206.084%20L%2024.34%206.085%20Z'/%3E%3C/svg%3E">
 <meta name="description" content="Cost, GPU-hours and EV for all 256 Bitcoin puzzles. Static, offline, no trackers.">
 <style>
+  @font-face { font-family: "Funnel Display"; src: url("fonts/FunnelDisplay-latin.woff2") format("woff2"); font-weight: 500 800; font-display: swap; }
+  @font-face { font-family: "Funnel Sans"; src: url("fonts/FunnelSans-latin.woff2") format("woff2"); font-weight: 400 600; font-display: swap; }
+  @font-face { font-family: "Space Grotesk"; src: url("fonts/SpaceGrotesk-latin.woff2") format("woff2"); font-weight: 400 500; font-display: swap; }
+  /* Decruptor design tokens (same values as decruptor.github.io) */
   :root {
-    --bg: #0e1116; --panel: #161b22; --panel2: #1c232d; --line: #2a313d;
-    --fg: #d7dde6; --dim: #8b96a5; --accent: #f7931a; --good: #3fb950;
-    --bad: #f85149; --warn: #d29922; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --violet-500: #6131FF; --violet-700: #6F00DB; --violet-200: #C7C3FF; --violet-50: #F4F3FF;
+    --ink-900: #110048; --ink-60: rgba(17,0,72,.6); --ink-40: rgba(17,0,72,.4); --ink-20: rgba(17,0,72,.2); --ink-08: rgba(17,0,72,.08);
+    --teal-700: #007976; --teal-600: #02918E; --teal-100: #AEF0EE;
+    --blue-600: #054AE2; --mute-400: #9D96B3; --paper: #FAFAFA; --white: #FFFFFF;
+    --signal-yellow: #FFCE1F; --amber-700: #8A6200;
+    --font-display: "Funnel Display", "Helvetica Neue", Arial, sans-serif;
+    --font-sans: "Funnel Sans", "Helvetica Neue", Arial, sans-serif;
+    --font-data: "Space Grotesk", ui-monospace, "Helvetica Neue", sans-serif;
+    /* names used by inline styles */
+    --dim: var(--ink-60); --accent: var(--violet-500); --mono: var(--font-data); --line: var(--ink-20);
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 -apple-system, "Segoe UI", Roboto, sans-serif; }
-  a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
-  code { font-family: var(--mono); font-size: 12px; color: var(--dim); }
-  header { padding: 20px 24px 8px; max-width: 1280px; margin: 0 auto; }
-  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: .3px; }
-  h1 .brand { color: var(--accent); }
-  .sub { color: var(--dim); max-width: 900px; margin: 0 0 14px; }
+  body { margin: 0; background: var(--paper); color: var(--ink-900); font: 15px/1.5 var(--font-sans); -webkit-font-smoothing: antialiased; }
+  a { color: var(--blue-600); text-decoration: none; } a:hover { color: var(--violet-500); }
+  code { font-family: var(--font-data); font-size: 12.5px; color: var(--ink-900); background: var(--violet-50); padding: 0 4px; border-radius: 1px; }
+
+  .top { max-width: 1280px; margin: 0 auto; padding: 28px 24px 0; display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: flex-end; }
+  .logo { display: inline-flex; align-items: flex-end; gap: 8px; color: var(--ink-900); }
+  .logo:hover { color: var(--ink-900); }
+  .logo .word { font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1; letter-spacing: .02em; text-transform: uppercase; }
+  .logo .mark { width: 25px; height: 21px; color: var(--violet-500); margin-bottom: 4px; flex-shrink: 0; }
+  .top nav { display: flex; gap: 20px; font: 500 12px/1 var(--font-sans); letter-spacing: .05em; text-transform: uppercase; padding-bottom: 4px; }
+  .top nav a { color: var(--ink-60); } .top nav a:hover { color: var(--violet-500); }
+  .hero { max-width: 1280px; margin: 0 auto; padding: 40px 24px 6px; }
+  .eyebrow { font: 500 12px/16px var(--font-sans); letter-spacing: .05em; text-transform: uppercase; color: var(--mute-400); margin: 0 0 10px; }
+  h1 { font-family: var(--font-display); font-weight: 500; font-size: clamp(32px, 5vw, 56px); line-height: 1.05; letter-spacing: .01em; color: var(--violet-500); margin: 0 0 16px; }
+  .sub { color: var(--ink-60); max-width: 900px; margin: 0 0 20px; font-size: 16px; }
   main { max-width: 1280px; margin: 0 auto; padding: 0 24px 48px; }
 
-  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
-  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px 14px; align-items: end; }
-  .field label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); margin-bottom: 3px; }
+  .panel { background: var(--white); border: 1px solid var(--ink-20); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px 16px; align-items: start; }
+  .controls .check, .controls .field:has(button) { align-self: center; }
+  .field label { display: block; font: 500 11px/1.2 var(--font-sans); text-transform: uppercase; letter-spacing: .05em; color: var(--ink-60); margin-bottom: 5px; }
   .field input[type=number], .field select {
-    width: 100%; background: var(--panel2); color: var(--fg); border: 1px solid var(--line);
-    border-radius: 6px; padding: 6px 8px; font-family: var(--mono); font-size: 13px;
+    width: 100%; background: var(--white); color: var(--ink-900); border: 1px solid var(--ink-20);
+    border-radius: 5px; padding: 7px 9px; font: 14px/1.3 var(--font-data); font-variant-numeric: tabular-nums;
   }
-  .field .hint { font-size: 11px; color: var(--dim); margin-top: 2px; }
-  .check { display: flex; gap: 7px; align-items: center; font-size: 13px; padding-bottom: 4px; }
+  .field input:focus, .field select:focus { outline: 2px solid var(--violet-500); outline-offset: -1px; }
+  .field .hint { font-size: 11px; color: var(--ink-40); margin-top: 3px; }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 14px; padding-bottom: 6px; }
+  input[type=checkbox] { accent-color: var(--violet-500); width: 16px; height: 16px; }
   button {
-    background: var(--panel2); color: var(--fg); border: 1px solid var(--line); border-radius: 6px;
-    padding: 7px 14px; cursor: pointer; font-size: 13px;
+    background: var(--ink-900); color: var(--white); border: 0; border-radius: 5px; padding: 10px 16px; cursor: pointer;
+    font: 500 12px/1 var(--font-sans); letter-spacing: .05em; text-transform: uppercase;
   }
-  button:hover { border-color: var(--accent); }
-  #summary { padding: 10px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 14px; }
-  #metaLine { color: var(--dim); font-size: 12px; margin: 2px 0 14px; }
+  button:hover { filter: brightness(1.3); }
+  #summary { padding: 14px 18px; background: var(--violet-50); border-radius: 10px; margin-bottom: 8px; font-size: 15px; }
+  #summary b { font-family: var(--font-display); font-weight: 600; color: var(--violet-500); }
+  #metaLine { color: var(--ink-40); font-size: 12px; margin: 4px 0 16px; }
 
-  .explain { border-left: 3px solid var(--warn); background: var(--panel); border-radius: 0 10px 10px 0;
-    padding: 12px 16px; margin: 14px 0; font-size: 13px; }
-  .explain.geo { border-left-color: var(--accent); }
-  .explain h3 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--warn); }
-  .explain.geo h3 { color: var(--accent); }
-  .explain .f { font-family: var(--mono); background: var(--panel2); padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+  .explain { background: var(--violet-50); border-left: 4px solid var(--violet-200); border-radius: 0 10px 10px 0;
+    padding: 14px 18px; margin: 16px 0; font-size: 14px; }
+  .explain.geo { background: rgba(174, 240, 238, .3); border-left-color: var(--teal-600); }
+  .explain h3 { margin: 0 0 8px; font: 600 17px/1.2 var(--font-display); color: var(--violet-700); }
+  .explain.geo h3 { color: var(--teal-700); }
+  .explain .f { font-family: var(--font-data); background: var(--white); border: 1px solid var(--ink-08); padding: 0 5px; border-radius: 1px; white-space: nowrap; }
   .explain p { margin: 6px 0; }
 
-  .twrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
-  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
-  thead th { position: sticky; top: 0; background: var(--panel2); color: var(--dim); text-align: right;
-    padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
+  .twrap { overflow-x: auto; background: var(--white); border: 1px solid var(--ink-20); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  thead th { position: sticky; top: 0; background: var(--violet-50); color: var(--ink-60); text-align: right;
+    padding: 10px; border-bottom: 1px solid var(--ink-20); font: 500 11px/1.2 var(--font-sans); text-transform: uppercase; letter-spacing: .05em; white-space: nowrap; }
   thead th.center, td.center { text-align: center; }
-  tbody td { padding: 5px 10px; border-bottom: 1px solid #20262f; text-align: right; font-family: var(--mono); white-space: nowrap; }
-  tbody tr:hover { background: #1d242e; }
-  td.n { color: var(--accent); font-weight: 600; }
-  td.addr { text-align: center; }
-  tr.r-solved td, tr.r-swept td { color: #5c6672; }
-  tr.r-solved td.n, tr.r-swept td.n { color: #5c6672; font-weight: 400; }
-  tr.hot { background: rgba(247, 147, 26, .05); }
-  .muted { color: #5c6672; }
-  .tiled { color: var(--good); } .undertiled { color: var(--warn); }
-  .pk.yes { color: var(--good); } .pk.no { color: var(--bad); }
-  .badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-family: inherit; border: 1px solid; }
-  .badge.good { color: var(--good); border-color: var(--good); }
-  .badge.bad { color: var(--bad); border-color: var(--bad); }
-  .badge.unreach { color: var(--dim); border-color: var(--line); }
-  .badge.solved { color: var(--dim); border-color: var(--line); }
-  .badge.swept { color: var(--warn); border-color: var(--warn); }
-  details.adv { margin-top: 10px; }
-  details.adv summary { cursor: pointer; color: var(--dim); font-size: 12px; }
-  footer { color: var(--dim); font-size: 12px; max-width: 1280px; margin: 0 auto; padding: 0 24px 40px; }
+  tbody td { padding: 6px 10px; border-bottom: 1px solid var(--ink-08); text-align: right; font-family: var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tbody tr:hover { background: var(--violet-50); }
+  td.n { color: var(--violet-500); font-weight: 500; }
+  td.addr { text-align: center; font-family: var(--font-sans); }
+  tr.r-solved td, tr.r-swept td { color: var(--ink-40); }
+  tr.r-solved td.n, tr.r-swept td.n { color: var(--ink-40); font-weight: 400; }
+  tr.hot { background: rgba(97, 49, 255, .07); }
+  .muted { color: var(--ink-40); }
+  .tiled { color: var(--teal-700); } .undertiled { color: var(--amber-700); }
+  .pk.yes { color: var(--teal-700); font-weight: 500; } .pk.no { color: var(--ink-40); }
+  .badge { display: inline-block; padding: 3px 9px; border-radius: 1px; font: 500 10.5px/1.3 var(--font-sans); text-transform: uppercase; letter-spacing: .05em; }
+  .badge.good { background: var(--teal-100); color: var(--teal-700); }
+  .badge.bad { background: var(--violet-50); color: var(--violet-700); }
+  .badge.unreach, .badge.solved { color: var(--ink-60); box-shadow: inset 0 0 0 1px var(--ink-20); }
+  .badge.swept { background: rgba(255, 206, 31, .4); color: var(--ink-900); }
+  details.adv { margin-top: 12px; }
+  details.adv summary { cursor: pointer; color: var(--violet-500); font: 500 12px/1.4 var(--font-sans); text-transform: uppercase; letter-spacing: .05em; }
+  footer { max-width: 1280px; margin: 0 auto; padding: 0 24px 40px; color: var(--ink-60); font-size: 12.5px; }
+  footer .band { display: flex; gap: 16px; align-items: flex-start; background: var(--violet-50); border-radius: 10px; padding: 18px 20px; }
+  footer .band .mark { width: 22px; height: 18px; color: var(--violet-500); flex-shrink: 0; margin-top: 2px; }
+  footer p { margin: 0; }
 </style>
 </head>
 <body>
-<header>
-  <h1><span class="brand">Decruptor</span> — which puzzle can you afford?</h1>
+<header class="top">
+  <a class="logo" href="https://decruptor.github.io/" aria-label="Decruptor home"><span class="word">Decruptor</span><svg class="mark" viewBox="0 0 36.508 30.423" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M 6.086 0.5 C 6.086 0.224 6.31 0 6.586 0 L 11.671 0 C 11.947 0 12.171 0.224 12.171 0.5 L 12.171 6.084 L 12.171 6.085 L 12.171 11.669 C 12.171 11.945 11.947 12.169 11.671 12.169 L 6.586 12.169 C 6.31 12.169 6.086 11.945 6.086 11.669 L 6.086 6.085 L 6.086 6.084 L 6.086 0.5 Z M 6.086 12.67 C 6.086 12.394 6.31 12.17 6.586 12.17 L 12.168 12.17 L 12.171 12.17 L 17.753 12.17 C 18.029 12.17 18.253 12.394 18.253 12.67 L 18.253 18.254 L 18.253 18.255 L 18.253 23.838 C 18.253 24.114 18.476 24.338 18.753 24.338 L 23.84 24.338 C 24.116 24.338 24.34 24.114 24.34 23.838 L 24.34 18.255 L 24.34 18.254 L 24.34 12.67 C 24.34 12.394 24.564 12.17 24.84 12.17 L 30.422 12.17 L 30.424 12.17 L 36.007 12.17 C 36.283 12.17 36.507 12.394 36.507 12.67 L 36.507 17.755 C 36.507 18.031 36.283 18.255 36.007 18.255 L 30.924 18.255 C 30.648 18.255 30.424 18.478 30.424 18.755 L 30.424 23.838 C 30.424 24.114 30.648 24.338 30.924 24.338 L 36.008 24.338 C 36.284 24.338 36.508 24.562 36.508 24.838 L 36.508 29.923 C 36.508 30.199 36.284 30.423 36.008 30.423 L 0.5 30.423 C 0.224 30.423 0 30.199 0 29.923 L 0 24.338 L 0 24.338 L 0 18.754 C 0 18.478 0.224 18.254 0.5 18.254 L 5.585 18.254 C 5.861 18.254 6.085 18.478 6.085 18.754 L 6.085 24.337 C 6.085 24.338 6.085 24.338 6.085 24.338 L 6.085 24.338 C 6.086 24.338 6.086 24.338 6.086 24.337 L 6.086 18.255 L 6.086 18.254 L 6.086 12.67 Z M 18.254 12.67 C 18.254 12.394 18.478 12.17 18.754 12.17 L 23.839 12.17 C 24.115 12.17 24.339 12.394 24.339 12.67 L 24.339 17.755 C 24.339 18.031 24.115 18.255 23.839 18.255 L 18.754 18.255 C 18.478 18.255 18.254 18.031 18.254 17.755 L 18.254 12.67 Z M 24.339 6.584 C 24.339 6.308 24.115 6.084 23.839 6.084 L 18.754 6.084 C 18.478 6.084 18.254 6.308 18.254 6.584 L 18.254 11.669 C 18.254 11.945 18.478 12.169 18.754 12.169 L 23.839 12.169 C 24.115 12.169 24.339 11.945 24.339 11.669 L 24.339 6.584 Z M 24.34 6.085 L 24.34 11.669 C 24.34 11.945 24.564 12.169 24.84 12.169 L 29.924 12.169 C 30.201 12.169 30.424 11.945 30.424 11.669 L 30.424 6.085 L 30.424 6.084 L 30.424 0.5 C 30.424 0.224 30.201 0 29.924 0 L 24.84 0 C 24.564 0 24.34 0.224 24.34 0.5 L 24.34 6.084 L 24.34 6.085 Z"/></svg></a>
+  <nav><a href="https://decruptor.github.io/">Site</a><a href="https://github.com/decruptor/calculator">Code</a><a href="tests.html">Tests</a></nav>
+</header>
+<section class="hero">
+  <p class="eyebrow">Puzzle calculator · offline · no trackers</p>
+  <h1>Which Bitcoin puzzle can you afford?</h1>
   <p class="sub">
     All 256 Bitcoin-puzzle races, priced in your hardware, your dollars and your expected
     value. Expected kangaroo work is <code>K·2^(n/2)</code> with the SOTA constant
@@ -83,7 +114,7 @@
     folder; every row links to the chain for verification. Assumptions are yours to edit —
     nothing here is hidden.
   </p>
-</header>
+</section>
 <main id="app">
   <div id="summary"></div>
   <div id="metaLine"></div>
@@ -205,13 +236,15 @@
   </div>
 </main>
 <footer>
-  Data: Bitcoin puzzle census snapshot <span id="censusDate"></span>, fetched from
+  <div class="band"><svg class="mark" viewBox="0 0 36.508 30.423" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M 6.086 0.5 C 6.086 0.224 6.31 0 6.586 0 L 11.671 0 C 11.947 0 12.171 0.224 12.171 0.5 L 12.171 6.084 L 12.171 6.085 L 12.171 11.669 C 12.171 11.945 11.947 12.169 11.671 12.169 L 6.586 12.169 C 6.31 12.169 6.086 11.945 6.086 11.669 L 6.086 6.085 L 6.086 6.084 L 6.086 0.5 Z M 6.086 12.67 C 6.086 12.394 6.31 12.17 6.586 12.17 L 12.168 12.17 L 12.171 12.17 L 17.753 12.17 C 18.029 12.17 18.253 12.394 18.253 12.67 L 18.253 18.254 L 18.253 18.255 L 18.253 23.838 C 18.253 24.114 18.476 24.338 18.753 24.338 L 23.84 24.338 C 24.116 24.338 24.34 24.114 24.34 23.838 L 24.34 18.255 L 24.34 18.254 L 24.34 12.67 C 24.34 12.394 24.564 12.17 24.84 12.17 L 30.422 12.17 L 30.424 12.17 L 36.007 12.17 C 36.283 12.17 36.507 12.394 36.507 12.67 L 36.507 17.755 C 36.507 18.031 36.283 18.255 36.007 18.255 L 30.924 18.255 C 30.648 18.255 30.424 18.478 30.424 18.755 L 30.424 23.838 C 30.424 24.114 30.648 24.338 30.924 24.338 L 36.008 24.338 C 36.284 24.338 36.508 24.562 36.508 24.838 L 36.508 29.923 C 36.508 30.199 36.284 30.423 36.008 30.423 L 0.5 30.423 C 0.224 30.423 0 30.199 0 29.923 L 0 24.338 L 0 24.338 L 0 18.754 C 0 18.478 0.224 18.254 0.5 18.254 L 5.585 18.254 C 5.861 18.254 6.085 18.478 6.085 18.754 L 6.085 24.337 C 6.085 24.338 6.085 24.338 6.085 24.338 L 6.085 24.338 C 6.086 24.338 6.086 24.338 6.086 24.337 L 6.086 18.255 L 6.086 18.254 L 6.086 12.67 Z M 18.254 12.67 C 18.254 12.394 18.478 12.17 18.754 12.17 L 23.839 12.17 C 24.115 12.17 24.339 12.394 24.339 12.67 L 24.339 17.755 C 24.339 18.031 24.115 18.255 23.839 18.255 L 18.754 18.255 C 18.478 18.255 18.254 18.031 18.254 17.755 L 18.254 12.67 Z M 24.339 6.584 C 24.339 6.308 24.115 6.084 23.839 6.084 L 18.754 6.084 C 18.478 6.084 18.254 6.308 18.254 6.584 L 18.254 11.669 C 18.254 11.945 18.478 12.169 18.754 12.169 L 23.839 12.169 C 24.115 12.169 24.339 11.945 24.339 11.669 L 24.339 6.584 Z M 24.34 6.085 L 24.34 11.669 C 24.34 11.945 24.564 12.169 24.84 12.169 L 29.924 12.169 C 30.201 12.169 30.424 11.945 30.424 11.669 L 30.424 6.085 L 30.424 6.084 L 30.424 0.5 C 30.424 0.224 30.201 0 29.924 0 L 24.84 0 C 24.564 0 24.34 0.224 24.34 0.5 L 24.34 6.084 L 24.34 6.085 Z"/></svg>
+  <p>Data: Bitcoin puzzle census snapshot <span id="censusDate"></span>, fetched from
   mempool.space and cross-checked on blockstream.info (funding tx
   <code>08389f34…6cd15</code>, block 339085). Every row's <b>verify ↗</b> opens the live
   address on mempool.space — don't trust the snapshot, check the UTXO before you spend a
   single GPU-hour. Walk constants and their validity domains: the Decruptor paper on
   Pollard-kangaroo walk constants; the EV factor is this tool's Rayleigh fit to that paper's run data. GPL-3.0 — no trackers, no network
-  calls, works from <code>file://</code>.
+  calls, works from <code>file://</code>.</p>
+  </div>
 </footer>
 <script src="data.js"></script>
 <script src="app.js"></script>

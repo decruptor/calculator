@@ -151,3 +151,7 @@ interval ECDLP on secp256k1 (https://github.com/decruptor/kangaroo-constants;
 ePrint number pending) — the constants are K = 1.15 SOTA, the RC DP-overhead
 formula, the §3.2 cycle-entry band and the §7.3 spacing/band rule. The EV
 factor is this tool's Rayleigh fit to the paper's run data.
+
+Fonts: Funnel Display and Funnel Sans (The Funnel Project Authors) and Space
+Grotesk (The Space Grotesk Project Authors), bundled in `fonts/` under the SIL
+Open Font License 1.1 (`fonts/OFL.txt`), so the page needs no network.

@@ -130,7 +130,8 @@
         With the formula box checked, K is computed per puzzle from
         <code>K = 1.15 + (0.07 + 0.76/√DPK)/(1 + 0.30·DPK)</code>,
         <code>DPK = 1.15·√W/(h·2^d)</code> (paper §5.3; accurate to ≤2.5% within its domain,
-        DPK ∈ [0.01, 80] — rows outside the domain are still shown, take them as K ≈ 1.15).
+        DPK ∈ [0.025, 74] at h = 512 for r = 31–40, and at r = 47 only for h ≥ 2048; above DPK 74
+        take K ≈ 1.15, below 0.025 the formula under-predicts — rows outside are still shown).
         h is your whole fleet's kangaroo count: GPUs × kangaroos/GPU.
       </p>
     </details>
@@ -140,7 +141,7 @@
     <h3>Why some rows are marked unreachable</h3>
     <p>
       The kangaroo method needs the target's <b>public key</b> — it walks between two known
-      EC points. Puzzles whose pubkey was never revealed (the odd-numbered gaps, #71–#159)
+      EC points. Puzzles whose pubkey was never revealed (#71–#159 except the multiples of 5)
       give you only a hash160. There is no pair of points to walk between, so the interval
       ECDLP attack is <i>structurally impossible</i>, not merely expensive — and there is no
       meet-in-the-middle shortcut either, because hash160 has no group structure. The only
@@ -157,8 +158,10 @@
   <div class="explain geo">
     <h3>Why fleet size changes your constant: the spacing/band geometry</h3>
     <p>
-      The SOTA walk doesn't diffuse — it saturates in a band of width
-      <span class="f">B ≈ 400·√W·(M/2^14)^0.4</span> around its start (paper §3.2). A herd
+      The SOTA walk doesn't diffuse — it is a deterministic map, so every walk wanders for a
+      while and then enters a cycle, and its displacement freezes in a band of width
+      <span class="f">B = c·√W</span> around its start, with c measured at 897 / 1648 / 2114 for
+      W = 2^31 / 2^39 / 2^47 (M = 2^14; paper §3.2). A herd
       of <span class="f">h</span> kangaroos therefore tiles the interval with
       wild-start spacing <span class="f">1.0625·W/(2h/3)</span>, and the governing geometric
       quantity is the ratio spacing/band (paper §5.5):
@@ -166,9 +169,10 @@
     <p>
       <span class="f">h ≳ 3·1.0625·W/(2·B)</span>&nbsp; keeps <span class="f">spacing/band ≲ 1</span>.
       Under-tiling costs you <b>+7–14%</b> K (measured); over-tiling wastes hardware
-      (−9…−22%, the DP formula over-penalizes). The <b>s/b</b> column in the table is this
-      ratio for your current fleet size, computed per puzzle; hover it for the numbers, and
-      remember the DP bits then follow from the DPK target of RC's formula (§7.3).
+      (−9…−22%, the DP formula over-penalizes). The DP bits then follow from the DPK target of
+      RC's formula (§7.3). The <b>s/b</b> column would show this ratio for your fleet, but the
+      paper measured the band only up to W = 2^47 and found no clean power law in M, so on
+      every live puzzle (#140+) it reads <b>n/m</b> (not measured) rather than an extrapolation.
     </p>
   </div>
 
@@ -186,10 +190,12 @@
   <div class="explain" style="margin-top:14px">
     <h3>How to read the EV column</h3>
     <p>
-      A kangaroo run's work-to-solution is exponentially distributed with mean
-      <span class="f">K·√W</span>. Committing exactly the mean budget succeeds with
-      probability <span class="f">1 − 1/e ≈ 63.2%</span>, so
-      solo EV = 0.632·prize − expected cost. Cost counts every
+      A kangaroo run's work-to-solution has mean <span class="f">K·√W</span> and a
+      birthday-shaped (Rayleigh-like) spread, not an exponential one: in the paper's SOTA runs the
+      median is 0.93–0.95× the mean. Committing exactly the mean budget therefore succeeds with
+      probability <span class="f">1 − e^(−π/4) ≈ 54.4%</span>, so
+      solo EV = 0.544·prize − cost of the full mean budget (conservative: a run that finds the
+      key early stops spending). Cost counts every
       GPU-hour your fleet burns: fleet size divides the wall time, never the total
       GPU-hours, so bigger fleets get there faster, not cheaper. A negative EV at your
       settings is not an insult — it is the honest answer to "can I afford this?", and the
@@ -203,8 +209,8 @@
   mempool.space and cross-checked on blockstream.info (funding tx
   <code>08389f34…6cd15</code>, block 339085). Every row's <b>verify ↗</b> opens the live
   address on mempool.space — don't trust the snapshot, check the UTXO before you spend a
-  single GPU-hour. Expected-value model, constants and their validity domains: the
-  Decruptor paper on Pollard-kangaroo walk constants. GPL-3.0 — no trackers, no network
+  single GPU-hour. Walk constants and their validity domains: the Decruptor paper on
+  Pollard-kangaroo walk constants; the EV factor is this tool's Rayleigh fit to that paper's run data. GPL-3.0 — no trackers, no network
   calls, works from <code>file://</code>.
 </footer>
 <script src="data.js"></script>

@@ -8,6 +8,9 @@
  * The paper's own sweeps quote interval widths directly (its "r = 31" is
  * W = 2^31), so geometry tests pass n = 31 to match the paper's table.
  */
+// Wrapped in a function so it can share the page with data.js, whose top-level
+// `const CENSUS` would otherwise collide with the declaration below.
+(function () {
 'use strict';
 
 let Calc, CENSUS;
@@ -124,19 +127,19 @@ test('formula mode returns K≈1.15 at huge DPK and inflates at tiny DPK', () =>
 
 /* ---- spacing/band geometry (paper §5.5, §7.3) ------------------------ */
 // Known under-tiled case from the paper: r=31, h=64, dp=5, M=2^14.
-// Paper measured +13.9% K there and quotes spacing/band ≈ 2.4 (B ≈ 2^24.4);
-// with the §7.3 rule-of-thumb B = 400·√W·(M/2^14)^0.4 the ratio is ≈ 2.9 —
-// either way > 1: the flag must fire.
+// Paper §5.5 measured +13.9% K there with spacing/band ≈ 1.3 (band = the
+// cycle-entry band 897·√W ≈ 2^25.3): the flag must fire.
 test('spacing/band flag fires for the paper under-tiled case (r=31, h=64)', () => {
   const ratio = Calc.spacingBandRatio(31, 64, Math.pow(2, 14));
-  assert(ratio > 2 && ratio < 4, 'expected ratio ≈ 2.4–2.9, got ' + ratio);
+  near(ratio, 1.3, 0.02, 'paper §5.5 spacing/band at h=64');
   assert(ratio > 1, 'under-tiled flag must fire (flag rule: ratio <= 1 is tiled)');
-  assert(Calc.minHerd(31, Math.pow(2, 14)) > 128, 'h=128 must still be under minHerd');
+  const mh = Calc.minHerd(31, Math.pow(2, 14));
+  assert(mh > 64 && mh < 128, 'minHerd at r=31 should sit between h=64 and h=128, got ' + mh);
 });
 
-test('calibration herd (r=31, h=512) is safely tiled: ratio ≈ 0.3, matches paper', () => {
+test('calibration herd (r=31, h=512) is safely tiled: ratio ≈ 0.16, matches paper §5.5', () => {
   const ratio = Calc.spacingBandRatio(31, 512, Math.pow(2, 14));
-  assert(ratio > 0.2 && ratio < 0.5, 'expected ratio ≈ 0.3, got ' + ratio);
+  near(ratio, 0.16, 0.02, 'paper §5.5 spacing/band at h=512');
   near(Calc.wildSpacing(31, 512), Math.pow(2, 22.7), 0.02, 'wild spacing 2^22.7');
 });
 
@@ -148,15 +151,22 @@ test('minHerd satisfies the paper rule h ≳ 3·1.0625·W/(2·B)', () => {
   near(Calc.spacingBandRatio(n, h, M), 1, 1e-9, 'ratio at minHerd');
 });
 
-test('band scales as (M/2^14)^0.4 (paper §3.2 power-law fit)', () => {
-  near(Calc.band(31, Math.pow(2, 14)), 400 * Math.pow(2, 15.5), 1e-12, 'band at default M');
-  near(Calc.band(31, Math.pow(2, 6)) / Calc.band(31, Math.pow(2, 14)), Math.pow(Math.pow(2, -8), 0.4), 1e-12, 'M exponent');
+test('band = measured cycle-entry rows of paper §3.2; NaN (not extrapolated) outside them', () => {
+  const M = Math.pow(2, 14);
+  near(Calc.band(31, M), 897 * Math.pow(2, 15.5), 1e-12, 'r=31, M=2^14');
+  near(Calc.band(39, M), 1648 * Math.pow(2, 19.5), 1e-12, 'r=39, M=2^14');
+  near(Calc.band(47, M), 2114 * Math.pow(2, 23.5), 1e-12, 'r=47, M=2^14');
+  near(Calc.band(31, Math.pow(2, 6)), 119 * Math.pow(2, 15.5), 1e-12, 'r=31, M=2^6');
+  near(Calc.band(31, Math.pow(2, 9)), 367 * Math.pow(2, 15.5), 1e-12, 'r=31, M=2^9');
+  near(Calc.spacingBandRatio(47, 512, M), 17.47, 0.01, 'paper §5.5: r=47, h=512 has spacing/band ≈ 17.5 (paper rounds to ≈ 18)');
+  assert(!Calc.bandMeasured(140, M) && isNaN(Calc.spacingBandRatio(140, 4096, M)), '#140 must be n/m');
+  assert(!Calc.bandMeasured(40, Math.pow(2, 9)), 'unmeasured (r, M) pair must be n/m');
 });
 
 /* ---- economics -------------------------------------------------------- */
-test('EV: 0.632·prize − cost (P(success at mean budget) = 1 − 1/e)', () => {
-  near(Calc.P_SUCCESS_AT_MEAN, 1 - Math.exp(-1), 1e-15, 'P at mean');
-  near(Calc.ev(1000, 100), (1 - Math.exp(-1)) * 1000 - 100, 1e-12, 'EV');
+test('EV: 0.544·prize − cost (Rayleigh: P(success at mean budget) = 1 − e^(−π/4))', () => {
+  near(Calc.P_SUCCESS_AT_MEAN, 1 - Math.exp(-Math.PI / 4), 1e-15, 'P at mean');
+  near(Calc.ev(1000, 100), (1 - Math.exp(-Math.PI / 4)) * 1000 - 100, 1e-12, 'EV');
 });
 
 test('prize/cost multiple and USD formatting', () => {
@@ -239,4 +249,5 @@ test('every census address is a valid mainnet P2PKH string for mempool links', (
 
 console.log('\n' + passed + ' passed, ' + failed + ' failed');
 if (failed) console.log('FAILURES:\n  - ' + failures.join('\n  - '));
-if (typeof process !== 'undefined' && process.exitCode !== undefined) process.exitCode = failed ? 1 : 0;
+if (typeof process !== 'undefined') process.exitCode = failed ? 1 : 0;
+})();

@@ -11,16 +11,19 @@
  *                         2^(n-1) community convention — this is ~sqrt(2) more
  *                         conservative)
  *   ops = K * 2^(n/2)     expected group operations (K = 1.15 SOTA constant)
- *   rate 1.45e10 group ops/s per 4090-class GPU (census method note)
+ *   rate 1.45e10 group ops/s per 4090-class GPU (RCKangaroo README turbo-kernel figure; also the census gpu_rate)
  *
  * Formulas cited from "An empirical analysis of Pollard-kangaroo walk
  * constants for interval ECDLP on secp256k1, including the unpublished SOTA
  * family" (Decruptor, 2026):
  *   RC DP-overhead formula   K = 1.15 + (0.07 + 0.76/sqrt(DPK)) / (1 + 0.30*DPK)
  *   DPK                      = 1.15 * sqrt(W) / (h * 2^d)
- *   saturation band          B ≈ 400 * sqrt(W) * (M / 2^14)^0.4      (§3.2)
+ *   cycle-entry band         B = c(r, M) * sqrt(W), c from the measured table of §3.2
+ *                            (897 / 1648 / 2114 at r = 31 / 39 / 47, M = 2^14; 119 / 367 / 897
+ *                            at M = 2^6 / 2^9 / 2^14, r = 31). No clean power law in M (§3.2, §7.3):
+ *                            interpolated between measured rows only, NaN outside them.
  *   wild start spacing       = 1.0625 * W / (2h/3)                  (§5.5)
- *   safe tiling rule         spacing/band ≲ 1  ⇔  h ≳ 3*1.0625*W/(2*B)  (§7.3)
+ *   tiling rule of thumb     spacing/band ≲ 1  ⇔  h ≳ 3*1.0625*W/(2*B)  (§7.3)
  */
 (function () {
   'use strict';
@@ -38,8 +41,8 @@
     /** RC DP-overhead formula (paper §5.3). Accurate to ≤2.5% in its domain. */
     kFromFormula: dpk => 1.15 + (0.07 + 0.76 / Math.sqrt(dpk)) / (1 + 0.30 * dpk),
 
-    /** Formula validity domain used by the paper's validation sweep. */
-    dpkInDomain: dpk => dpk >= 0.01 && dpk <= 80,
+    /** Formula validity domain of the paper's validation sweep (§5.3, abstract). */
+    dpkInDomain: dpk => dpk >= 0.025 && dpk <= 74,
 
     /** K given a herd/DP configuration: 1.15 constant, or the RC formula. */
     kFor: (n, h, d, useFormula) => {
@@ -61,18 +64,45 @@
     prizeUsd: (btc, btcPrice) => btc * btcPrice,
 
     /**
-     * Solo EV. A kangaroo run's total work to solution is ~exponentially
-     * distributed with mean K*sqrt(W); committing exactly the mean budget
-     * succeeds with probability 1 - 1/e ≈ 63.2%. EV = 0.632*prize - cost.
+     * Solo EV. A kangaroo run's work to solution is birthday-shaped, not
+     * exponential: the paper's per-trial K at the Kang-1 configuration has
+     * median/mean 0.933 and sd/mean 0.544 (Rayleigh: 0.939 and 0.523;
+     * exponential: 0.693 and 1.0). Under the Rayleigh law, committing exactly
+     * the mean budget succeeds with probability 1 - e^(-pi/4) ≈ 54.4%.
+     * EV = 0.544*prize - cost.
      */
-    P_SUCCESS_AT_MEAN: 1 - 1 / Math.E,
+    P_SUCCESS_AT_MEAN: 1 - Math.exp(-Math.PI / 4),
     ev: (prizeUsd, costUsd) => Calc.P_SUCCESS_AT_MEAN * prizeUsd - costUsd,
-    /** Prize/cost multiple at full expected spend (no 0.632 haircut). */
+    /** Prize/cost multiple at full expected spend (no 0.544 haircut). */
     prizeOverCost: (prizeUsd, costUsd) => (costUsd > 0 ? prizeUsd / costUsd : Infinity),
 
     /* ---- herd geometry (paper §3.2 / §5.5 / §7.3) ------------------------ */
-    /** Saturation band width B ≈ 400·√W·(M/2^14)^0.4. */
-    band: (n, M) => 400 * Calc.sqrtW(n) * Math.pow(M / TWO14, 0.4),
+    /**
+     * Cycle-entry band B = c·√W from the measured rows of paper §3.2. The
+     * paper finds no clean power law in M and says to interpolate
+     * between measured rows (§7.3), so this returns NaN outside them: the
+     * walk geometry at W = 2^140 is outside the paper's measurements (they stop at W = 2^47).
+     */
+    BAND_R: [[31, 897], [39, 1648], [47, 2114]],          // at M = 2^14
+    BAND_M31: [[6, 119], [9, 367], [14, 897]],            // at r = 31, by log2 M
+    bandCoef: (n, M) => {
+      const lerp = (rows, x) => {
+        if (x < rows[0][0] || x > rows[rows.length - 1][0]) return NaN;
+        for (let i = 1; i < rows.length; i++) {
+          if (x <= rows[i][0]) {
+            const [x0, y0] = rows[i - 1], [x1, y1] = rows[i];
+            return y0 + (y1 - y0) * (x - x0) / (x1 - x0);
+          }
+        }
+        return NaN;
+      };
+      if (M === TWO14) return lerp(Calc.BAND_R, n);
+      if (n === 31) return lerp(Calc.BAND_M31, Math.log2(M));
+      return NaN;
+    },
+    band: (n, M) => Calc.bandCoef(n, M) * Calc.sqrtW(n),
+    /** True when (n, M) lies inside the measured band table. */
+    bandMeasured: (n, M) => isFinite(Calc.bandCoef(n, M)),
     /** Wild-range start spacing = 1.0625·W/(2h/3). */
     wildSpacing: (n, h) => 1.0625 * Math.pow(2, n) / (2 * h / 3),
     spacingBandRatio: (n, h, M) => Calc.wildSpacing(n, h) / Calc.band(n, M),
@@ -169,7 +199,8 @@
       out.seconds = seconds;
       out.ratio = Calc.spacingBandRatio(p.n, h, cfg.jumpTable);
       out.minHerd = Calc.minHerd(p.n, cfg.jumpTable);
-      out.tiled = out.ratio <= 1;
+      out.geoMeasured = isFinite(out.ratio);
+      out.tiled = out.geoMeasured && out.ratio <= 1;
       // verdict
       if (out.seconds / 3.15576e7 > 1000) out.verdict = 'lifetime+';
       else if (out.ev > 0) out.verdict = 'positive EV';
@@ -194,7 +225,7 @@
     btcPrice: 100000,      // editable assumption — see README
     usdPerGpuHour: 0.40,   // cloud 4090-class rental ballpark; edit for your rig
     gpus: 1,
-    ratePerGpu: 1.45e10,   // census method note: 1.45e10 group ops/s, 4090-class
+    ratePerGpu: 1.45e10,   // RCKangaroo README: ~14.5 GH/s on a 4090 (turbo kernels)
     useFormula: false,
     herdPerGpu: 4096,      // kangaroos per GPU (solver-dependent — edit)
     dpBits: 15,
@@ -262,7 +293,9 @@
     cells.push('<td class="num">' + (r.cost !== undefined ? Calc.fmtUsd(r.cost) : '—') + '</td>');
     cells.push('<td class="num">' + (r.seconds !== undefined ? Calc.fmtSeconds(r.seconds) : (r.hash160Seconds !== undefined ? Calc.fmtSeconds(r.hash160Seconds) : '—')) + '</td>');
     cells.push('<td class="num">' + (r.ev !== undefined ? Calc.fmtUsd(r.ev) : '—') + '</td>');
-    if (r.cls === 'kangaroo') {
+    if (r.cls === 'kangaroo' && !r.geoMeasured) {
+      cells.push('<td class="num muted" title="' + esc('not measured: the cycle-entry band is only known for W = 2^31…2^47 at M = 2^14 (and M = 2^6…2^14 at 2^31), paper §3.2; no extrapolation') + '">n/m</td>');
+    } else if (r.cls === 'kangaroo') {
       const t = 'wild spacing ' + Calc.fmtSci(Calc.wildSpacing(p.n, state.gpus * state.herdPerGpu)) +
         ' vs band ' + Calc.fmtSci(Calc.band(p.n, state.jumpTable)) +
         ' — spacing/band ' + r.ratio.toFixed(2) + (r.tiled ? ' (tiled)' : ' (under-tiled: +7–14% K, paper §5.5)') +
